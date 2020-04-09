@@ -3,6 +3,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <stdio.h>
 #include <math.h>
+#include <vector>
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -15,7 +17,7 @@ int main(int argc, char** argv)
 	// If not success, exit program
 	if (!cap.isOpened())
 	{
-		cout << "Cannot open the web cam" << endl;
+		//cout << "Cannot open the web cam" << endl;
 		return -1;
 	}
 
@@ -23,6 +25,17 @@ int main(int argc, char** argv)
 	// namedWindow("Control", CV_WINDOW_AUTOSIZE);		// Control Window
 	namedWindow("Control");		// Control Window
 
+/*YELLOW
+	int iLowH = 21;
+	int iHighH = 30;
+
+	int iLowS = 200;
+	int iHighS = 255;
+
+	int iLowV = 102;
+	int iHighV = 255;
+*/
+ //RED
 	int iLowH = 169;
 	int iHighH = 179;
 
@@ -31,6 +44,7 @@ int main(int argc, char** argv)
 
 	int iLowV = 0;
 	int iHighV = 255;
+
 
 	// Create Trackbars in Control Window
 	createTrackbar("LowH", "Control", &iLowH, 179);		//Hue (0 - 179)
@@ -74,26 +88,45 @@ int main(int argc, char** argv)
 		// If the area <= 10000, consider that it's because of the noise
 		if (dArea > 10000)
 		{
-			// Calculate the Centroid of the Object
-			int posX = dM10 / dArea;
-			int posY = dM01 / dArea;
 
+
+
+			// Calculate the Centroid of the Object
+			double posX = ((dM10 *2.695) / (dArea*3779.52755906));
+			double posY = ((dM01 * 2.85 ) / (dArea*3779.52755906));
+
+
+
+			// Write the above values to a text file.
+			// Once written, pause this program for a second.
+			// Call the Saran_Test.cpp file.
+
+
+			cout << endl;
+
+			cout << posX << endl;
+			cout << posY << endl << endl;
+
+
+			ofstream outFile;
+			outFile.open("/home/RSL/libfranka/build/examples/posFromCamera.txt");
+			outFile << posX << endl;
+			outFile << posY;
+
+
+
+/*
 			// Draw a Red Circle tracking the Object
 			int R = sqrt((dArea / 255) / 3.14);
 			if (posX >= 0 && posY >= 0)
 			{
 				circle(imgOriginal, Point(posX, posY), R, Scalar(0, 0, 255), 2);
 			}
+*/
 
-			// Calculate the Distance between the Object and the camera
-			int realR = 4;
-			int f = -10;
-			int fpx = 750;
-			int d = (realR*fpx) / R + f;
-			cout << "Distance = " << d << endl;
-			cout << "X Position = " << posX << endl;
-			cout << "y Position = " << posY << endl;
-			cout << endl;
+	break;
+
+
 		}
 
 		// Show the Thresholded Image
@@ -106,9 +139,7 @@ int main(int argc, char** argv)
 		// Wait for key is pressed then break loop
 		if (waitKey(5) == 27)			//ESC 27, ENTER 13, SPACE 32
 		{
-			break;
+			//break;
 		}
 	}
-
-	return 0;
 }
